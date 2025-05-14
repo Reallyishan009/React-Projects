@@ -24,7 +24,4 @@ A responsive React application that lets users view **public holidays** for any 
 
 ---
 
-## 📸 Screenshots
 
-_Add relevant screenshots here (optional)_  
-Example:
