@@ -1,6 +1,6 @@
 # 🌍 Public Holiday App
 
-A responsive React application that lets users view **public holidays** for any country using the [OpenHolidays API](https://openhoyidaysapi.com). This project demonstrates working with external APIs, React components, and state management.
+A responsive React application that lets users view **public holidays** for any country using the [OpenHolidays API](https://openholidaysapi.org/swagger/index.html). This project demonstrates working with external APIs, React components, and state management.
 
 ---
 
