@@ -44,6 +44,7 @@ const Movies = () => {
     }
   ])
 
+
   const [watchlist,setWatchList] = useState([]);
 
 
@@ -63,13 +64,17 @@ const Movies = () => {
   const addToWatchList = (movieObj) => {
     let updatedWatchList = [...watchlist,movieObj]
     setWatchList(updatedWatchList);
+    console.log(watchlist);
+    localStorage.setItem("watchlist",JSON.stringify(updatedWatchList));
   }
 
   const removeFromWatchList =(movieObj) =>{
     let filteredMovies = watchlist.filter((movies)=>{
-      return movie.id !== movieObj.id;
+      return movies.id !== movieObj.id;
+       console.log(watchlist);
     })
     setWatchList(filteredMovies);
+    localStorage.setItem("watchlist",JSON.stringify(filteredMovies));
   }
   
   useEffect(() => {
@@ -83,7 +88,15 @@ const Movies = () => {
       });
   }, [pageNo]);
 
-
+  useEffect (() => {
+    let moviesFromLocalStorage = localStorage.getItem("watchlist");
+    if (moviesFromLocalStorage) {
+      moviesFromLocalStorage = JSON.parse(moviesFromLocalStorage);
+      setWatchList(moviesFromLocalStorage);
+      
+    }
+  }
+  , []);
 
   return ( 
     <div className='min-h-screen '>
@@ -93,7 +106,7 @@ const Movies = () => {
         <div className='flex justify-evenly gap-8 flex-wrap'>
         {movies.map((movie,i) => {
             return (
-                <MovieCard key={i} movieObj={movie} />
+                <MovieCard key={i} movieObj={movie} addToWatchList={addToWatchList} removeFromWatchList={removeFromWatchList} watchlist={watchlist} />
             );
         })}
         </div>
@@ -103,5 +116,5 @@ const Movies = () => {
     </div>
   )
 }
-
+ 
 export default Movies;

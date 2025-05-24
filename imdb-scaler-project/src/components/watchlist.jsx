@@ -1,6 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import genreid from "../assets/genre.js"; // Assuming genreid is a JSON file with genre mappings
+import genreids from "../assets/genre.js";
 
 const WatchList = () => {
+
+  const [watchlist, setWatchList] = useState([]);
+
+  useEffect(() => {
+    let moviesFromLocalStorage = localStorage.getItem("watchlist");
+    if (moviesFromLocalStorage) {
+      moviesFromLocalStorage = JSON.parse(moviesFromLocalStorage);
+      setWatchList(moviesFromLocalStorage);
+      
+    }
+  }
+  , []);
+
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
       <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
@@ -26,22 +41,25 @@ const WatchList = () => {
         </thead>
         <tbody className="divide-y divide-gray-100 border-t border-gray-100">
 
-            {/* Sample movie element */}
-            <tr className="hover:bg-gray-50">
+            {watchlist.map((movieObj) => ( 
+              <tr key={movieObj.id} className="hover:bg-gray-50">
               <td className="flex items-center px-6 py-4 font-normal text-gray-900">
                 <img
                   className="h-[6rem] w-[10rem] object-fit"
-                  src={`https://fastly.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68`}
-                  alt=""
+                  src={`https://image.tmdb.org/t/p/original/${movieObj.backdrop_path}`}
+                  alt="movie poster"
                 />
                 <div className="font-medium text-gray-700 text-sm">
-                  Placeholder
+                  {movieObj.title}
                 </div>
               </td>
-              <td className="pl-6 py-4">Avg</td>
-              <td className="pl-6 py-4">Popularity</td>
-              <td className="pl-2 py-4">Genre</td>
+              <td className="pl-6 py-4">{movieObj.vote_average}</td>
+              <td className="pl-6 py-4">{movieObj.popularity}</td>
+              <td className="pl-2 py-4">{genreids[movieObj.genre_ids[0]]}</td>
             </tr>
+
+            ))}
+            
           
         </tbody>
       </table>
