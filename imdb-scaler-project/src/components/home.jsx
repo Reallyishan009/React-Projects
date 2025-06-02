@@ -1,5 +1,6 @@
-import Banner from './banner';
+import Banner from "./Banner";
 import Movies from "./Movies";
+
 const Home = () => {
   return (
     <>
@@ -7,6 +8,6 @@ const Home = () => {
       <Movies />
     </>
   );
-}
+};
 
 export default Home;

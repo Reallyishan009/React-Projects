@@ -1,120 +1,78 @@
-//content area
+import { useContext, useEffect } from "react";
+import MovieCard from "./MovieCard";
+import Pagination from "./Pagination";
+import { MovieContext } from "./MovieContext";
+import { useDispatch, useSelector } from "react-redux";
+import PaginationSlice from "./Redux/paginationSlice";
+import fetchMiddleware from "./Redux/movieMiddleware";
 
-import { useState,useEffect } from 'react'
-import MovieCard from './MovieCard';
-import Pagination from './Pagination';
-import axios from "axios";
-import WatchList from './watchlist';
+const paginationActions = PaginationSlice.actions;
 
 const Movies = () => {
-    const [movies, setMovies] = useState([
-    {
-      url: "https://fastly.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
-      title: "Movie 1",
-    },
-    {
-      url: "https://fastly.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
-      title: "Movie 2",
-    },
-    {
-      url: "https://fastly.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
-      title: "Movie 3",
-    },
-    {
-      url: "https://fastly.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
-      title: "Movie 4",
-    },
-    {
-      url: "https://fastly.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
-      title: "Movie 5",
-    },
-    {
-        url: "https://fastly.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
-        title: "Movie 6",
-        },
+  const { movies, error, loading } = useSelector((state) => state.MovieSlice);
+  const { watchList, addToWatchList, removeFromWatchList } =
+    useContext(MovieContext);
+  const { pageNo } = useSelector((state) => state.PaginationSlice);
 
-        {
-        url: "https://fastly.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
-        title: "Movie 7",
-        },
-
-        {
-        url: "https://fastly.picsum.photos/id/10/2500/1667.jpg?hmac=J04WWC_ebchx3WwzbM-Z4_KC_LeLBWr5LZMaAkWkF68",
-        title: "Movie 8",
-    }
-  ])
-
-
-  const [watchlist,setWatchList] = useState([]);
-
-
-  const [pageNo, setPageNo] = useState(1);
-
+  const dispatch = useDispatch();
 
   const handleNext = () => {
-    setPageNo(pageNo + 1);
-  }
+    dispatch(paginationActions.handleNext());
+  };
 
   const handlePrev = () => {
-    if (pageNo > 1) {
-      setPageNo(pageNo - 1);
-    }
-  }
+    dispatch(paginationActions.handlePrevious());
+  };
 
-  const addToWatchList = (movieObj) => {
-    let updatedWatchList = [...watchlist,movieObj]
-    setWatchList(updatedWatchList);
-    console.log(watchlist);
-    localStorage.setItem("watchlist",JSON.stringify(updatedWatchList));
-  }
-
-  const removeFromWatchList =(movieObj) =>{
-    let filteredMovies = watchlist.filter((movies)=>{
-      return movies.id !== movieObj.id;
-       console.log(watchlist);
-    })
-    setWatchList(filteredMovies);
-    localStorage.setItem("watchlist",JSON.stringify(filteredMovies));
-  }
-  
   useEffect(() => {
-    axios
-      .get(
-        `https://api.themoviedb.org/3/trending/movie/day?api_key=3aec63790d50f3b9fc2efb4c15a8cf99&language=en-US&page=${pageNo}`
-      )
-      .then(function (res) {
-        console.log(res.data.results);
-        setMovies(res.data.results);
-      });
+    dispatch(fetchMiddleware(pageNo));
   }, [pageNo]);
 
-  useEffect (() => {
-    let moviesFromLocalStorage = localStorage.getItem("watchlist");
-    if (moviesFromLocalStorage) {
-      moviesFromLocalStorage = JSON.parse(moviesFromLocalStorage);
-      setWatchList(moviesFromLocalStorage);
-      
-    }
+  if (loading) {
+    return (
+      <div>
+        <div className="text-4xl font-bold text-center m-5">Loading...</div>
+      </div>
+    );
   }
-  , []);
 
-  return ( 
-    <div className='min-h-screen '>
-        <div className='text-2xl font-bold text-center m-5 '>Trending Movies</div>
-
-          
-        <div className='flex justify-evenly gap-8 flex-wrap'>
-        {movies.map((movie,i) => {
-            return (
-                <MovieCard key={i} movieObj={movie} addToWatchList={addToWatchList} removeFromWatchList={removeFromWatchList} watchlist={watchlist} />
-            );
-        })}
+  if (error) {
+    return (
+      <div>
+        <div className="text-4xl font-bold text-center m-5">
+          Something went wrong!
         </div>
-        {
-        <Pagination nextPageFn={handleNext} prevPageFn={handlePrev} pageNumber={pageNo} />
-        }
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      <div className="text-4xl font-bold text-center m-5">Trending Movies</div>
+
+      {/* Movies */}
+      <div className="flex justify-evenly gap-8 flex-wrap">
+        {movies.map((movie, i) => {
+          return (
+            <MovieCard
+              key={i}
+              movieObj={movie}
+              addToWatchList={addToWatchList}
+              removeFromWatchList={removeFromWatchList}
+              watchlist={watchList}
+            />
+          );
+        })}
+      </div>
+
+      {/* Pagination */}
+      <Pagination
+        nextPageFn={handleNext}
+        previousPageFn={handlePrev}
+        pageNumber={pageNo}
+      />
     </div>
-  )
-}
- 
+  );
+};
+
 export default Movies;
